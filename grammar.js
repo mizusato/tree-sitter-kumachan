@@ -16,7 +16,9 @@ module.exports = grammar({
     let rules = {}
     for (let [k,v] of Object.entries(raw)) {
       if (k == 'inline_type_args' || k == 'inline_ref') {
-        rules[k] = $ => prec.left(-1, v($))
+        rules[k] = $ => prec.left(v($))
+      } else if (k == 'terms') {
+        rules[k] = $ => prec.right(-1, v($))
       } else {
         rules[k] = $ => prec.right(v($))
       }
@@ -66,7 +68,8 @@ module.exports = grammar({
       decl_macro: $ => seq($.scope, 'macro', $.name, $.macro_params, ':', $.expr, ';'),
         macro_params: $ => choice(seq('(', ')'), seq('(', $.name, repeat(seq(',', $.name)), ')')),
         expr: $ => seq($.terms, optional($.pipeline)),
-          terms: $ => seq($.callee, repeat($.term)),
+          terms: $ => choice($.term, $.call),
+            call: $ => seq($.callee, repeat1($.term)),
             callee: $ => $.term,
           pipeline: $ => seq($.pipe_op, $.pipe_func, optional($.pipe_arg), optional($.pipeline)),
             pipe_op: $ => choice('|', '.'),
