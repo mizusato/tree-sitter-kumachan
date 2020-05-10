@@ -5,6 +5,7 @@
   "main": "index.js",
   "author": "mizusato",
   "license": "MIT",
+  "repository": "https://notabug.org/mizusato/tree-sitter-kumachan",
   "dependencies": {
     "nan": "^2.14.1"
   },
