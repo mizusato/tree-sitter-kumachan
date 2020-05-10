@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-kumachan",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Grammar definition of the KumaChan programming language",
   "main": "index.js",
   "author": "mizusato",
