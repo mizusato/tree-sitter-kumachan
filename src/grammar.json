@@ -920,6 +920,27 @@
                 "name": "name"
               },
               {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ":"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "name"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
                 "type": "REPEAT",
                 "content": {
                   "type": "SEQ",
@@ -931,6 +952,27 @@
                     {
                       "type": "SYMBOL",
                       "name": "name"
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "STRING",
+                              "value": ":"
+                            },
+                            {
+                              "type": "SYMBOL",
+                              "name": "name"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "BLANK"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -1871,7 +1913,7 @@
           },
           {
             "type": "STRING",
-            "value": ":"
+            "value": ","
           },
           {
             "type": "SYMBOL",
