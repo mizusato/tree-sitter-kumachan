@@ -532,6 +532,10 @@
           },
           {
             "type": "SYMBOL",
+            "name": "implicit_type"
+          },
+          {
+            "type": "SYMBOL",
             "name": "union_type"
           },
           {
@@ -547,6 +551,23 @@
       "content": {
         "type": "STRING",
         "value": "native"
+      }
+    },
+    "implicit_type": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "implicit"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "repr_bundle"
+          }
+        ]
       }
     },
     "union_type": {
@@ -738,8 +759,42 @@
       "type": "PREC_RIGHT",
       "value": 0,
       "content": {
-        "type": "SYMBOL",
-        "name": "repr_func"
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "implicit_input"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "SYMBOL",
+            "name": "repr_func"
+          }
+        ]
+      }
+    },
+    "implicit_input": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "implicit"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "type_args"
+          }
+        ]
       }
     },
     "body": {
