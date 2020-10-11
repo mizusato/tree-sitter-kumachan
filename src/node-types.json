@@ -693,6 +693,21 @@
     }
   },
   {
+    "type": "inline_module_prefix",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "inline_ref",
     "named": true,
     "fields": {},
@@ -701,11 +716,11 @@
       "required": true,
       "types": [
         {
-          "type": "inline_type_args",
+          "type": "inline_module_prefix",
           "named": true
         },
         {
-          "type": "module_prefix",
+          "type": "inline_type_args",
           "named": true
         },
         {
