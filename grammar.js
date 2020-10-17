@@ -11,7 +11,7 @@ const Name = /[^0-9\{\}\[\]\(\)\.,:;\~\#\$\^\&\|\\'"` \t\r　\n][^\{\}\[\]\(\)\.
 
 module.exports = grammar({
   name: 'kumachan',
-  extras: $ => [$.comment, Blank, LF],
+  extras: $ => [$.comment, $.pragma, Blank, LF],
   rules: (raw => {
     let rules = {}
     for (let [k,v] of Object.entries(raw)) {
@@ -25,8 +25,7 @@ module.exports = grammar({
     }
     return rules
   })({
-      source_file: $ => seq(optional($.shebang), $.stmts),
-        shebang: $ => Pragma,
+      source_file: $ => $.stmts,
         stmts: $ => repeat1($.stmt),
           stmt: $ => choice($.import, $.do, $.decl_type, $.decl_const, $.decl_func, $.decl_macro),
             import: $ => seq('import', $.name, 'from', $.string_text, ';'),
@@ -130,6 +129,7 @@ module.exports = grammar({
             string_text: $ => SqStr,
           char: $ => Char,
       comment: $ => Comment,
+      pragma: $ => Pragma,
   })
 });
 

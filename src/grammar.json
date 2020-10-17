@@ -5,33 +5,8 @@
       "type": "PREC_RIGHT",
       "value": 0,
       "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "shebang"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          },
-          {
-            "type": "SYMBOL",
-            "name": "stmts"
-          }
-        ]
-      }
-    },
-    "shebang": {
-      "type": "PREC_RIGHT",
-      "value": 0,
-      "content": {
-        "type": "PATTERN",
-        "value": "#[^\\n]*"
+        "type": "SYMBOL",
+        "name": "stmts"
       }
     },
     "stmts": {
@@ -2626,12 +2601,24 @@
         "type": "PATTERN",
         "value": "\\/\\*([^\\*\\/]|\\*[^\\/]|[^\\*]\\/)*\\*\\/|\\/\\/[^\\n]*"
       }
+    },
+    "pragma": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "PATTERN",
+        "value": "#[^\\n]*"
+      }
     }
   },
   "extras": [
     {
       "type": "SYMBOL",
       "name": "comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "pragma"
     },
     {
       "type": "PATTERN",
