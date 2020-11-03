@@ -1806,10 +1806,6 @@
     "named": false
   },
   {
-    "type": "as",
-    "named": false
-  },
-  {
     "type": "case",
     "named": false
   },
@@ -1907,6 +1903,10 @@
   },
   {
     "type": "union",
+    "named": false
+  },
+  {
+    "type": "weak",
     "named": false
   },
   {

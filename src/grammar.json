@@ -606,7 +606,7 @@
         "members": [
           {
             "type": "STRING",
-            "value": "as"
+            "value": "weak"
           },
           {
             "type": "STRING",
