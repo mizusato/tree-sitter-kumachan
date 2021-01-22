@@ -482,6 +482,21 @@
     }
   },
   {
+    "type": "enum_type",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "decl_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "expr",
     "named": true,
     "fields": {},
@@ -1697,30 +1712,15 @@
           "named": true
         },
         {
+          "type": "enum_type",
+          "named": true
+        },
+        {
           "type": "implicit_type",
           "named": true
         },
         {
           "type": "native_type",
-          "named": true
-        },
-        {
-          "type": "union_type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "union_type",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "decl_type",
           "named": true
         }
       ]
@@ -1834,6 +1834,10 @@
     "named": false
   },
   {
+    "type": "enum",
+    "named": false
+  },
+  {
     "type": "from",
     "named": false
   },
@@ -1899,10 +1903,6 @@
   },
   {
     "type": "type",
-    "named": false
-  },
-  {
-    "type": "union",
     "named": false
   },
   {
