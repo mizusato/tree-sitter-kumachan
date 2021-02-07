@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const Pragma = /#[^\n]*/
 const SqStr = /'[^']*'/
 const DqStr = /"[^"]*"/
@@ -49,8 +51,8 @@ module.exports = grammar({
           native_type: $ => 'native',
           implicit_type: $ => seq('implicit', $.repr_bundle),
           enum_type: $ => seq('enum', '{', repeat1($.decl_type), '}'),
-          boxed_type: $ => seq(optional($.box_option), $.inner_type),
-            box_option: $ => choice('weak', 'protected', 'opaque'),
+          boxed_type: $ => seq(optional($.box_option), optional('weak'), $.inner_type),
+            box_option: $ => choice('protected', 'opaque'),
             inner_type: $ => $.type,
         type_params: $ => seq('[', $.type_param, repeat(seq(',', $.type_param)), ']'),
           type_param: $ => seq($.name, optional($.type_bound)),
