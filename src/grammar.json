@@ -762,8 +762,16 @@
             "name": "signature"
           },
           {
-            "type": "SYMBOL",
-            "name": "body"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "body"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           },
           {
             "type": "STRING",
@@ -1102,8 +1110,16 @@
             "name": "type"
           },
           {
-            "type": "SYMBOL",
-            "name": "const_value"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "const_value"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           },
           {
             "type": "STRING",
