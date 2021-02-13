@@ -1490,7 +1490,7 @@
         "members": [
           {
             "type": "STRING",
-            "value": "switch*"
+            "value": "select"
           },
           {
             "type": "STRING",

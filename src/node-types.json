@@ -1894,11 +1894,11 @@
     "named": false
   },
   {
-    "type": "switch",
+    "type": "select",
     "named": false
   },
   {
-    "type": "switch*",
+    "type": "switch",
     "named": false
   },
   {

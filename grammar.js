@@ -85,7 +85,7 @@ module.exports = grammar({
           $.block, $.cps, $.bundle, $.get, $.tuple, $.infix, $.inline_ref,
           $.array, $.int, $.float, $.formatter, $.string, $.char),
           cast: $ => seq('(', ':', $.type, ':', $.expr, ')'),
-          multi_switch: $ => seq('switch*', '(', $.exprlist, ')', ':', $.multi_branch_list, 'end'),
+          multi_switch: $ => seq('select', '(', $.exprlist, ')', ':', $.multi_branch_list, 'end'),
             exprlist: $ => seq($.expr, repeat(seq(',', $.expr))),
             multi_branch_list: $ => repeat1(seq($.multi_branch, ',')),
               multi_branch: $ => seq($.multi_branch_key, ':', $.expr),
