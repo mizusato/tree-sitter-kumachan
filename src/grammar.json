@@ -1785,6 +1785,22 @@
                 "name": "type_ref"
               },
               {
+                "type": "REPEAT",
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "type_ref"
+                    }
+                  ]
+                }
+              },
+              {
                 "type": "CHOICE",
                 "members": [
                   {
