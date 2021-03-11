@@ -8,8 +8,8 @@ const Blank = /[ \t\r　]+/
 const LF = /\n+/
 const Int = /\-?0[xX][0-9A-Fa-f]+|\-?0[oO][0-7]+|\-?0[bB][01]+|\-?\d[\d_]*/
 const Float = /\-?\d+(\.\d+)?[Ee][\+\-]?\d+|\-?\d+\.\d+/
-const Char = /\^.|\\u[0-9A-Fa-f]+|\\[a-z]/
-const Name = /[^0-9\{\}\[\]\(\)\.,:;\~\#\$\^\&\|\\'"` \t\r　\n][^\{\}\[\]\(\)\.,:;\~\#\$\^\&\|\\'"` \t\r　\n]*/
+const Char = /`.|\\u[0-9A-Fa-f]+|\\[a-z]/
+const Name = /[^0-9\{\}\[\]\(\)\.,:;\#\&\\'"` \t\r　\n][^\{\}\[\]\(\)\.,:;\#\&\\'"` \t\r　\n]*/
 
 module.exports = grammar({
   name: 'kumachan',
@@ -17,19 +17,19 @@ module.exports = grammar({
   rules: (raw => {
     let rules = {}
     for (let [k,v] of Object.entries(raw)) {
+      let decorate = (g, f) => $ => f(g($)) 
       if (k == 'inline_type_args' || k == 'inline_ref') {
-        rules[k] = $ => prec.left(v($))
-      } else if (k == 'terms') {
-        rules[k] = $ => prec.right(-1, v($))
+        v = decorate(v, x => prec.left(x))
       } else {
-        rules[k] = $ => prec.right(v($))
+        v = decorate(v, x => prec.right(x))
       }
+      rules[k] = v
     }
     return rules
   })({
       source_file: $ => $.stmts,
         stmts: $ => repeat1($.stmt),
-          stmt: $ => choice($.import, $.do, $.decl_type, $.decl_const, $.decl_func, $.decl_macro),
+          stmt: $ => choice($.import, $.do, $.decl_type, $.decl_const, $.decl_func),
             import: $ => seq('import', $.name, 'from', $.string_text, ';'),
               name: $ => Name,
             do: $ => seq('do', $.expr, ';'),
@@ -42,8 +42,7 @@ module.exports = grammar({
             repr_tuple: $ => choice(seq('(', ')'), seq('(', $.type, repeat(seq(',', $.type)), ')')),
             repr_bundle: $ => choice(seq('{', '}'), seq('{', $.field, repeat(seq(',', $.field)), '}')),
               field: $ => seq($.name, ':', $.type),
-            repr_func: $ => seq('(', $.lambda_header, $.input_type, $.output_type, ')'),
-              lambda_header: $ => choice('lambda', '&'),
+            repr_func: $ => seq('&', $.input_type, '=>', $.output_type),
               input_type: $ => $.type,
               output_type: $ => $.type,
       decl_type: $ => seq('type', $.name, optional($.type_params), optional($.type_value), ';'),
@@ -55,42 +54,43 @@ module.exports = grammar({
             box_option: $ => choice('protected', 'opaque'),
             inner_type: $ => $.type,
         type_params: $ => seq('[', $.type_param, repeat(seq(',', $.type_param)), ']'),
-          type_param: $ => seq($.name, optional($.type_bound)),
+          type_param: $ => seq(optional(seq('[', $.type, ']')), $.name, optional($.type_bound)),
             type_bound: $ => seq(choice('<', '>'), $.type),
-      decl_func: $ => seq($.scope, 'function', $.name, optional($.type_params), ':', $.signature, optional($.body), ';'),
-        scope: $ => choice('public', 'private'),
+      decl_func: $ => seq(optional('export'), 'function', $.name, ':', optional($.type_params), $.signature, optional($.body), ';'),
         signature: $ => seq(optional($.implicit_input), $.repr_func),
-          implicit_input: $ => seq('implicit', $.type_args),
+          implicit_input: $ => seq('(', $.type, repeat(seq(',', $.type)), ')'),
         body: $ => choice($.native, $.lambda),
           native: $ => seq('native', $.string_text),
-          lambda: $ => seq('(', $.lambda_header, $.pattern, $.expr, ')'),
+          lambda: $ => seq('&', $.pattern, '=>', $.expr),
             pattern: $ => choice($.pattern_trivial, $.pattern_tuple, $.pattern_bundle),
               pattern_trivial: $ => $.name,
               pattern_tuple: $ => choice(seq('(', ')'), seq('(', $.name, repeat(seq(',', $.name)), ')')),
               pattern_bundle: $ => choice(seq('{', '}'), seq('{', $.name, optional(seq(':', $.name)), repeat(seq(',', $.name, optional(seq(':', $.name)))), '}')),
-      decl_const: $ => seq($.scope, 'const', $.name, ':', $.type, optional($.const_value), ';'),
-        const_value: $ => choice($.native, $.expr),
-      decl_macro: $ => seq($.scope, 'macro', $.name, $.macro_params, ':', $.expr, ';'),
-        macro_params: $ => choice(seq('(', ')'), seq('(', $.name, repeat(seq(',', $.name)), ')')),
-        expr: $ => seq($.terms, optional($.pipeline)),
-          terms: $ => choice($.term, $.call),
-            call: $ => seq($.callee, repeat1($.term)),
-            callee: $ => $.term,
-          pipeline: $ => seq($.pipe_op, $.pipe_func, optional($.pipe_arg), optional($.pipeline)),
-            pipe_op: $ => choice('|', '.'),
-            pipe_func: $ => $.term,
-            pipe_arg: $ => repeat1($.term),
+      decl_const: $ => seq(optional('export'), 'const', $.name, ':', $.type, optional($.const_value), ';'),
+        const_value: $ => seq(':=', choice($.native, $.expr)),
+        expr: $ => seq($.term, optional($.pipeline)),
+          pipeline: $ => seq($.pipe, optional($.pipeline)),
+            pipe: $ => choice($.pipe_func, $.pipe_get, $.pipe_cast),
+              pipe_func: $ => seq('.', '{', $.callee, optional($.expr), '}'),
+                callee: $ => seq($.expr),
+              pipe_get: $ => seq('.', $.name),
+              pipe_cast: $ => seq('.', '[', $.type, ']'),
         term: $ => choice (
-          $.cast, $.lambda, $.multi_switch, $.switch, $.if,
-          $.block, $.cps, $.bundle, $.get, $.tuple, $.infix, $.inline_ref,
+          $.call, $.lambda, $.multi_switch, $.switch, $.if,
+          $.block, $.cps, $.bundle, $.tuple, $.inline_ref,
           $.array, $.int, $.float, $.formatter, $.string, $.char),
-          cast: $ => seq('(', ':', $.type, ':', $.expr, ')'),
+          call: $ => choice($.call_prefix, $.call_infix),
+            call_prefix: $ => seq('{', $.callee, $.expr, '}'),
+            call_infix: $ => seq('(', $.infix_left, $.operator, $.infix_right, ')'),
+              operator: $ => $.expr,
+              infix_left: $ => $.expr,
+              infix_right: $ => $.expr,
           multi_switch: $ => seq('select', '(', $.exprlist, ')', ':', $.multi_branch_list, 'end'),
             exprlist: $ => seq($.expr, repeat(seq(',', $.expr))),
             multi_branch_list: $ => repeat1(seq($.multi_branch, ',')),
               multi_branch: $ => seq($.multi_branch_key, ':', $.expr),
-                multi_branch_key: $ => choice('default', seq('case', $.multi_type_ref, optional($.multi_pattern))),
-                  multi_type_ref: $ => seq('[', $.type_ref_list, ']'),
+                multi_branch_key: $ => choice('default', seq('case', $.multi_ref, optional($.multi_pattern))),
+                  multi_ref: $ => seq('[', $.type_ref_list, ']'),
                     type_ref_list: $ => seq($.type_ref, repeat(seq(',', $.type_ref))),
                     multi_pattern: $ => $.pattern_tuple,
           switch: $ => seq('switch', $.expr, ':', $.branch_list, 'end'),
@@ -102,24 +102,18 @@ module.exports = grammar({
             binding: $ => seq('let', $.pattern, optional($.binding_type), ':=', $.expr),
               binding_type: $ => seq(':', optional('rec'), $.type),
               block_value: $ => seq(',', $.expr),
-          cps: $ => seq('~', $.inline_ref, optional($.cps_binding), $.cps_input, ',', $.cps_output),
-            cps_binding: $ => seq($.lambda_header, $.pattern, optional($.binding_type), ':='),
+          cps: $ => seq('&',  optional($.cps_binding), $.inline_ref, $.cps_input, ',', $.cps_output),
+            cps_binding: $ => seq($.pattern, optional($.binding_type), ':='),
             cps_input: $ => $.expr,
             cps_output: $ => $.expr,
           bundle: $ => choice(seq('{', '}'), seq('{', optional($.update), $.pairlist, '}')),
             pairlist: $ => seq($.pair, repeat(seq(',', $.pair))),
               pair: $ => choice(seq($.name, ':', $.expr), $.name),
             update: $ => seq('...', $.expr, ','),
-          get: $ => seq('$', '{', $.expr, '}', repeat1($.member)),
-            member: $ => seq('.', $.name),
           tuple: $ => choice(seq('(', ')'), seq('(', $.exprlist, ')')),
-          infix: $ => seq('$', '(', $.operand1, $.operator, $.operand2, ')'),
-            operand1: $ => $.term,
-            operator: $ => $.term,
-            operand2: $ => $.term,
           inline_ref: $ => seq(optional($.inline_module_prefix), $.name, optional($.inline_type_args)),
             inline_module_prefix: $ => seq($.name, '::'),
-            inline_type_args: $ => seq(':', '[', $.type, repeat(seq(',', $.type)), ']'),
+            inline_type_args: $ => seq(':::', '[', $.type, repeat(seq(',', $.type)), ']'),
           array: $ => choice(seq('[', ']'), seq('[', $.exprlist, ']')),
           int: $ => Int,
           float: $ => Float,
